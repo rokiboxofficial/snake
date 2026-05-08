@@ -29,9 +29,36 @@ key_wait:
 	in	al, 0x64
 	test	al, 1
 	jz	key_wait
-	in	al, 0x60
-	mov	byte [pressed], al
 
+	in	al, 0x60
+up_check:
+	cmp	al, 0x48
+	jne	left_check
+	jmp	key_up
+left_check:
+	cmp	al, 0x4B
+	jne	down_check
+	jmp	key_left
+down_check:
+	cmp	al, 0x50
+	jne	right_check
+	jmp	key_down
+right_check:
+	cmp	al, 0x4D
+	jne	key_e
+	jmp	key_right
+key_up:
+	mov	byte [pressed], up
+	jmp	key_e
+key_left:
+	mov	byte [pressed], left
+	jmp	key_e
+key_down:
+	mov	byte [pressed], down
+	jmp	key_e
+key_right:
+	mov	byte [pressed], right
+	jmp	key_e
 key_e:
 	mov	al, 0x20
 	out	0x20, al
