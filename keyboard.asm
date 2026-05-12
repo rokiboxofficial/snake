@@ -105,18 +105,26 @@ keyboard_right_check:
 	jmp	keyboard_set_right
 
 keyboard_set_up:
+	cmp	byte [bx], keyboard_down
+	je	keyboard_key_press_handler_end
 	mov	byte [bx], keyboard_up
 	jmp	keyboard_key_press_handler_end
 
 keyboard_set_left:
+	cmp	byte [bx], keyboard_right
+	je	keyboard_key_press_handler_end
 	mov	byte [bx], keyboard_left
 	jmp	keyboard_key_press_handler_end
 
 keyboard_set_down:
+	cmp	byte [bx], keyboard_up
+	je	keyboard_key_press_handler_end
 	mov	byte [bx], keyboard_down
 	jmp	keyboard_key_press_handler_end
 
 keyboard_set_right:
+	cmp	byte [bx], keyboard_left
+	je	keyboard_key_press_handler_end
 	mov	byte [bx], keyboard_right
 	jmp	keyboard_key_press_handler_end
 
