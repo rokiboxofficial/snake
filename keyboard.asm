@@ -1,6 +1,6 @@
 section	.text
 
-; -> direction_pointer; is_quit_pointer
+; -> direction_pointer; is_quit_pointer; is_play_pointer
 ; set direction: up(0); left(1); down(2); right(3) (arrows, no wasd)
 ; set is_quit when 'q' is pressed
 ; set custom keyboard vector handler
@@ -12,6 +12,8 @@ keyboard_setup:
 	mov	word [keyboard_direction_ptr], ax 
 	mov	ax, [bp + 6]
 	mov	word [keyboard_is_quit_ptr], ax
+	mov	ax, [bp + 8]
+	mov	word [keyboard_is_play_ptr], ax
 
 	mov	word [keyboard_handler_offset], keyboard_key_press_handler
 	mov	word [keyboard_handler_segment], cs
@@ -55,6 +57,13 @@ keyboard_key_press_handler:
 	push	ax
 	push	bx
 	in	al, keyboard_ctrl_out_buf	
+
+keyboard_play_check:
+	cmp	al, keyboard_play_code
+	jne	keyboard_quit_check
+	mov	bx, [keyboard_is_play_ptr]
+	mov	byte [bx], 1
+	jmp	keyboard_key_press_handler_end
 
 keyboard_quit_check:
 	cmp	al, keyboard_quit_code
@@ -131,9 +140,11 @@ keyboard_right			equ	3
 
 keyboard_extra_code		equ	0xE0 ; first byte of complex scan code
 keyboard_quit_code		equ	0x90 ; 'q'
+keyboard_play_code		equ	0x19 ; 'p'
 
 keyboard_handler_offset		dw	0
 keyboard_handler_segment	dw	0
 
 keyboard_direction_ptr		dw	0
-keyboard_is_quit_ptr    	db	0
+keyboard_is_quit_ptr    	dw	0
+keyboard_is_play_ptr		dw	0
