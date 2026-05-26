@@ -191,6 +191,80 @@ video_set_info:
 	pop	bp
 	ret
 
+; -> [yx]
+video_set_snake_tile:
+	push	bp
+	mov	bp, sp
+
+	push	video_snake_attr
+	push	word [bp + 4]
+	call	video_set_tile
+	add	sp, 4 
+
+	mov	sp, bp
+	pop	bp
+	ret
+
+; -> [yx]
+video_unset_snake_tile:
+	push	bp
+	mov	bp, sp
+
+	mov	ax, video_border_fill_word
+	mov	al, ah
+	xor	ah, ah
+	push	ax
+	push	word [bp + 4]
+	call	video_set_tile
+	add	sp, 4
+
+	mov	sp, bp
+	pop	bp
+	ret
+
+; -> [yx]
+video_set_apple_tile:
+	push	bp
+	mov	bp, sp
+
+	push	video_apple_attr
+	push	word [bp + 4]
+	call	video_set_tile
+	add	sp, 4
+
+	mov	sp, bp
+	pop	bp
+	ret
+
+; -> [yx], video_attr
+video_set_tile:
+	push	bp
+	mov	bp, sp
+	push	di
+	push	es
+
+	mov	ax, word [bp + 4]
+	mov	al, ah
+	xor	ah, ah
+	mov	di, video_buffer_width * 2
+	mul	di
+	mov	di, ax
+	add	di, video_border_offset + 2 + (video_buffer_width * 2)
+	mov	ax, word [bp + 4]
+	xor	ah, ah
+	shl	al, 1
+	add	di, ax
+	mov	ax, video_buffer_segment
+	mov	es, ax
+	mov	ax, [bp + 6]
+	mov	byte [es:di + 1], al	
+
+	pop	es
+	pop	di
+	mov	sp, bp
+	pop	bp
+	ret
+
 video_fill_borders:
 	push	bp
 	mov	bp, sp
@@ -360,9 +434,10 @@ video_buffer_height	equ	25
 video_buffer_size_w	equ	video_buffer_height * video_buffer_width
 
 video_background_word	equ	0
-video_border_word	equ	0b0100101000000000
+video_border_word	equ	0b0111000000000000
 video_border_fill_word	equ	0b0000011100000000
-
+video_snake_attr	equ	0b00100000
+video_apple_attr	equ	0b01000000
 video_border_width	equ	22
 video_border_height	equ	15
 video_border_margin_h	equ	(video_buffer_width - video_border_width) / 2

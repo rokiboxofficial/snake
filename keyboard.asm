@@ -1,6 +1,6 @@
 section	.text
 
-; -> direction_pointer; is_quit_pointer; is_play_pointer
+; -> direction_pointer; is_quit_pointer; is_play_pointer; can_turn_pointer
 ; set direction: up(0); left(1); down(2); right(3) (arrows, no wasd)
 ; set is_quit when 'q' is pressed
 ; set custom keyboard vector handler
@@ -14,6 +14,8 @@ keyboard_setup:
 	mov	word [keyboard_is_quit_ptr], ax
 	mov	ax, [bp + 8]
 	mov	word [keyboard_is_play_ptr], ax
+	mov	ax, [bp + 10]
+	mov	word [keyboard_can_turn_ptr], ax
 
 	mov	word [keyboard_handler_offset], keyboard_key_press_handler
 	mov	word [keyboard_handler_segment], cs
@@ -75,7 +77,11 @@ keyboard_quit_check:
 keyboard_extra_check:
 	cmp	al, keyboard_extra_code
 	jne	keyboard_key_press_handler_end
-
+	push	bx
+	mov	bx, [keyboard_can_turn_ptr]
+	cmp	byte [bx], 0
+	pop	bx
+	je	keyboard_key_press_handler_end
 keyboard_second_byte_wait:
 	in	al, keyboard_ctrl_status_reg
 	test	al, 1
@@ -108,24 +114,32 @@ keyboard_set_up:
 	cmp	byte [bx], keyboard_down
 	je	keyboard_key_press_handler_end
 	mov	byte [bx], keyboard_up
+	mov	bx, word [keyboard_can_turn_ptr]
+	mov	byte [bx], 0
 	jmp	keyboard_key_press_handler_end
 
 keyboard_set_left:
 	cmp	byte [bx], keyboard_right
 	je	keyboard_key_press_handler_end
 	mov	byte [bx], keyboard_left
+	mov	bx, word [keyboard_can_turn_ptr]
+	mov	byte [bx], 0
 	jmp	keyboard_key_press_handler_end
 
 keyboard_set_down:
 	cmp	byte [bx], keyboard_up
 	je	keyboard_key_press_handler_end
 	mov	byte [bx], keyboard_down
+	mov	bx, word [keyboard_can_turn_ptr]
+	mov	byte [bx], 0
 	jmp	keyboard_key_press_handler_end
 
 keyboard_set_right:
 	cmp	byte [bx], keyboard_left
 	je	keyboard_key_press_handler_end
 	mov	byte [bx], keyboard_right
+	mov	bx, word [keyboard_can_turn_ptr]
+	mov	byte [bx], 0
 	jmp	keyboard_key_press_handler_end
 
 keyboard_key_press_handler_end:
@@ -154,5 +168,6 @@ keyboard_handler_offset		dw	0
 keyboard_handler_segment	dw	0
 
 keyboard_direction_ptr		dw	0
+keyboard_can_turn_ptr		dw	0
 keyboard_is_quit_ptr    	dw	0
 keyboard_is_play_ptr		dw	0
