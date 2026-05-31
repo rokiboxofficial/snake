@@ -3,7 +3,7 @@ section .text
 ; -> set_snake_tile([yx]), unset_snake_tile([yx]),
 ; -> set_apple_tile([yx])
 ; -> direction_ptr, game_state_ptr
-; -> can_turn_ptr
+; -> direction_back_ptr
 game_setup:
 	push	bp
 	mov	bp, sp
@@ -22,7 +22,7 @@ game_setup:
 	mov	ax, word [bp + 12]
 	mov	word [game_state_ptr], ax
 	mov	ax, word [bp + 14]
-	mov	word [game_can_turn_ptr], ax
+	mov	word [game_direction_back_ptr], ax
 
 	mov	ah, game_board_height >> 1
 	mov	al, 0; game_board_width >> 1 
@@ -55,6 +55,12 @@ game_setup_loop:
 game_snake_move:
 	push	bp
 	mov	bp, sp
+	sub	sp, 2
+
+	mov	bx, word [game_direction_ptr]
+	xor	ax, ax
+	mov	al, byte [bx]
+	mov	word [bp - 2], ax
 
 	mov	cx, word [game_snake_len]
 	dec	cx
@@ -65,9 +71,10 @@ game_snake_move:
 
 	push	cx
 	push	bx
-	push	[bx]
+	push	word [bp -2]
+	push	word [bx]
 	call	game_get_next
-	add	sp, 2
+	add	sp, 4
 	pop	bx
 	pop	cx
 
@@ -100,9 +107,10 @@ game_snake_move_loop:
 
 	push	bx
 	add	bx, game_board
+	push	word [bp - 2]
 	push	word [bx]
 	call	game_get_next
-	add	sp, 2
+	add	sp, 4
 	pop	bx
 	add	bx, game_board
 game_snake_move_grow:
@@ -124,8 +132,14 @@ game_snake_move_grow:
 	call	game_enter_tile
 	pop	ax
 
-	mov	bx, word [game_can_turn_ptr]
-	mov	byte [bx], 1
+	mov	ax, [bp - 2]
+	xor	al, 0b00000010
+	and	al, 0b00000011
+	mov	bx, word [game_direction_back_ptr]
+	mov	byte [bx], al
+	mov	bx, word [game_direction_ptr]
+	mov	ax, [bp - 2]
+	mov	byte [bx], al
 
 game_snake_move_end:
 	mov	sp, bp
@@ -348,15 +362,14 @@ game_zero_bitboard_loop:
 	pop	bp
 	ret
 
-; -> [yx]
+; -> [yx], -> game_direction
 ; <- [yx]
 game_get_next:
 	push	bp
 	mov	bp, sp
 
 	mov	ax, word [bp + 4]
-	mov	bx, [game_direction_ptr]
-	mov	cl, byte [bx]
+	mov	cx, word [bp + 6]
 
 	cmp	cl, game_up
 	je	game_get_next_set_up
@@ -394,7 +407,7 @@ game_set_snake_tile	dw	0
 game_unset_snake_tile	dw	0
 game_set_apple_tile	dw	0
 game_direction_ptr	dw	0
-game_can_turn_ptr	dw	0
+game_direction_back_ptr	dw	0
 game_state_ptr		dw	0 ; 0 - running; 1; win; 2 lose
 
 section .bss
