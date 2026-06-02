@@ -134,7 +134,9 @@ keyboard_set_right:
 	jmp	keyboard_key_press_handler_end
 
 keyboard_key_press_handler_end:
-	_eoi
+	;eoi
+	mov	al, 0x20
+	out	0x20, al
 	pop	bx
 	pop	ax
 	iret

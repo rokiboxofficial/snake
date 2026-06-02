@@ -5,6 +5,7 @@ rand_setup:
 	mov	bp, sp
 	push	es
 
+;	0040:006C - @TIMER_LOW (BIOS)
 	mov	ax, 0x40
 	mov	es, ax
 	
