@@ -276,7 +276,7 @@ game_enter_tile:
 	push	bp
 	mov	bp, sp
 
-	push	[bp + 4]
+	push	word [bp + 4]
 	call	[game_set_snake_tile]
 	pop	ax
 	push	ax
@@ -292,7 +292,7 @@ game_leave_tile:
 	push	bp
 	mov	bp, sp
 
-	push	[bp + 4]
+	push	word [bp + 4]
 	call	[game_unset_snake_tile]
 	pop	ax
 	push	ax
@@ -308,7 +308,7 @@ game_xor_bitboard:
 	push	bp
 	mov	bp, sp
 	
-	push	[bp + 4]
+	push	word [bp + 4]
 	call	game_get_ordinal
 	add	sp, 2
 
@@ -355,7 +355,7 @@ game_zero_bitboard:
 game_zero_bitboard_loop:
 	mov	bx, dx
 	sub	bx, cx
-	mov	[game_bitboard + bx], 0
+	mov	byte [game_bitboard + bx], 0
 	loop	game_zero_bitboard_loop
 
 	mov	sp, bp

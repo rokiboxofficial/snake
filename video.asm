@@ -92,7 +92,7 @@ video_set_game_end_frame:
 	push	bp
 	mov	bp, sp
 	
-	push	[bp + 6]
+	push	word [bp + 6]
 	call	video_set_score_text
 	add	sp, 2
 
@@ -187,6 +187,39 @@ video_set_info:
 	call	video_set_text
 	add	sp, 4
 
+	mov	sp, bp
+	pop	bp
+	ret
+
+; word apple_xy, word snake_len, word board_offset
+video_draw_snake_and_apple:
+	push	bp
+	mov	bp, sp
+	push	di
+
+	push	word [bp + 4]
+	call 	video_set_apple_tile
+	add	sp, 2
+	mov	cx, word [bp + 6]
+	mov	bx, word [bp + 8]
+	mov	dx, cx
+video_draw_snake_and_apple_loop:
+	mov	di, dx
+	sub	di, cx
+	shl	di, 1
+	mov	ax, word [bx + di]
+	push	cx
+	push	bx
+	push	dx	
+	push	ax
+	call 	video_set_snake_tile
+	add	sp, 2
+	pop	dx
+	pop	bx
+	pop	cx
+	loop	video_draw_snake_and_apple_loop
+
+	pop	di
 	mov	sp, bp
 	pop	bp
 	ret
