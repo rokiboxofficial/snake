@@ -1,3 +1,3 @@
-%macro	_brk	0
-	xchg	bx, bx
-%endmacro
+        %macro _brk 0
+        xchg bx, bx
+        %endmacro
