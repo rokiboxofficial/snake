@@ -28,7 +28,7 @@ jobs:
           
       - name: Assemble main.asm to main.com
         run: |
-          nasm main.asm -f bin -o main.com
+          nasm src/main.asm -i src/ -f bin -o main.com
           ls -la *.com
           
       - name: Create GitHub Release
