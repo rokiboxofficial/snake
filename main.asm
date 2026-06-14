@@ -44,8 +44,8 @@ main_game_loop_prolog:
 main_game_loop:
 	;BIOS WAIT - wait CX,DX microseconds
 	mov	ah, 0x86
-	mov	cx, 0x0B	; 0.75 second
-	mov	dx, 0x71B0
+	mov	cx, 0x07	; 0.5 second
+	mov	dx, 0xA120
 	int	0x15
 
 	push	word [game_snake_len]
